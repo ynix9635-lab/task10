@@ -1,0 +1,19 @@
+SELECT
+    o.ID                              AS order_id,
+    o.create_date                     AS date,
+    c.name                            AS customer,
+    c.email                           AS email,
+    s.title                           AS status,
+    s.discount                        AS discount_pct,
+    m.name                            AS manager,
+    GROUP_CONCAT(p.title, ', ')       AS products,
+    ROUND(SUM(p.price), 2)            AS total,
+    ROUND(SUM(p.price) * (1 - s.discount / 100.0), 2) AS total_after_discount
+FROM orders o
+JOIN customers  c ON c.ID = o.customer_ID
+JOIN statuses   s ON s.ID = c.status_ID
+LEFT JOIN managers m ON m.ID = o.manager_ID
+LEFT JOIN order_products op ON op.order_ID = o.ID
+LEFT JOIN products       p  ON p.ID = op.product_ID
+GROUP BY o.ID
+ORDER BY o.create_date, o.ID;
